@@ -10,14 +10,22 @@
 </head>
 <body>
     <!-- === ПРЕЛОАДЕР === -->
+    <!-- === ПРЕЛОАДЕР === -->
     <div id="preloader">
-     <!-- Внутренний контейнер для flex-выравнивания -->
      <div class="preloader-content">
-         <img src="img/Group.svg" alt="Логотип МИДИС" class="preloader-logo-img">
+         <!-- Обертка для левого лого -->
+         <div class="preloader-logo-wrapper">
+             <img src="img/Group.svg" alt="Логотип МИДИС" class="preloader-logo-img preloader-logo-left">
+         </div>
+         <!-- Разделитель -->
          <span class="preloader-separator"></span>
-         <img src="img/80_let.png" alt="80 лет Великой Победы" class="preloader-logo-img">
+         <!-- Обертка для правого лого -->
+         <div class="preloader-logo-wrapper">
+             <img src="img/80_let.png" alt="80 лет Великой Победы" class="preloader-logo-img preloader-logo-right">
+         </div>
      </div>
  </div>
+ <!-- === КОНЕЦ ПРЕЛОАДЕРА === -->
     <!-- === КОНЕЦ ПРЕЛОАДЕРА === -->
 
     <div class="site-wrapper">
