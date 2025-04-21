@@ -6,7 +6,7 @@
     --font-secondary: 'Roboto', sans-serif;
 
     --color-primary: #F34604; /* Основной оранжевый МИДИС */
-    --color-primary-dark: #F34604; /* Такой же, как основной */
+    --color-primary-dark: #F34604; /* Сделан таким же */
     --color-text: #212529;
     --color-text-muted: #6C757D;
     --color-background: #FFFFFF;
@@ -53,10 +53,9 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    opacity: 0; /* <<< Сайт изначально невидимый */
+    opacity: 0; /* <<< Сайт изначально невидимый (для плавного появления) */
     transition: opacity 0.6s ease-in-out; /* <<< Плавное появление (0.6с) */
 }
-
 .site-wrapper.site-loaded {
     opacity: 1; /* <<< Делаем сайт видимым */
 }
@@ -97,7 +96,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-text);
 }
 
-/* --- Стили для Прелоадера (Анимация Blur + Scale + Overshoot + Dissolve - Финал + Мобильный фикс) --- */
+/* --- Стили для Прелоадера (Явные начальные стили) --- */
 #preloader {
     position: fixed;
     left: 0; top: 0; right: 0; bottom: 0;
@@ -108,37 +107,40 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     opacity: 1;
     visibility: visible;
-    pointer-events: none;
+    pointer-events: none; /* Не мешает кликам, когда исчезнет */
 }
 
 /* Контейнер для элементов */
 .preloader-content {
     display: flex;
     align-items: center;
-    gap: 20px; /* Отступ для десктопа */
+    gap: 20px;
 }
 
-/* Общие стили для элементов внутри */
-.preloader-content > * {
-    opacity: 0;
-    animation-name: finalElementAnimation; /* Единая анимация для всех */
-    animation-duration: 4.8s;
-    animation-timing-function: ease-in-out;
-    animation-fill-mode: forwards;
-    pointer-events: auto;
+/* Обертка для логотипа (структурный элемент) */
+.preloader-logo-wrapper {
+    line-height: 0;
 }
 
-/* Высота логотипов */
+/* Стили ЛОГОТИПОВ - ЗАДАЕМ НАЧАЛЬНОЕ СОСТОЯНИЕ ЗДЕСЬ */
 .preloader-logo-img {
     height: 60px;
     max-width: 150px;
-    flex-shrink: 0;
+    display: block;
+    opacity: 0; /* <<< Начальная прозрачность */
+    filter: blur(10px); /* <<< Начальный блюр */
+    transform: scale(0.5); /* <<< Начальный масштаб */
+    /* Анимация */
+    animation-name: finalLogoAnimation;
+    animation-duration: 4.8s;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards; /* <<< Важно, чтобы остаться в opacity: 0 */
 }
 .preloader-logo-right {
     height: 80px;
 }
 
-/* Разделитель - СТИЛИ ПО УМОЛЧАНИЮ (ВЕРТИКАЛЬНЫЙ) */
+/* Разделитель - ЗАДАЕМ НАЧАЛЬНОЕ СОСТОЯНИЕ ЗДЕСЬ */
 .preloader-separator {
     display: block;
     width: 2px;
@@ -146,25 +148,61 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--color-primary);
     border-radius: 1px;
     flex-shrink: 0;
-    animation-name: fadePreloaderElement; /* Анимация появления/исчезновения */
+    margin: 0 10px; /* Добавили отступы для десктопа */
+    opacity: 0; /* <<< Начальная прозрачность */
+    transform: scale(0.8); /* <<< Начальный масштаб */
+    /* Анимация */
+    animation-name: fadePreloaderElement;
+    animation-duration: 4.8s;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards; /* <<< Важно */
 }
 
-/* Задержка анимации */
+/* Задержка анимации для ВСЕХ элементов */
 .preloader-logo-left { animation-delay: 0s; }
 .preloader-separator { animation-delay: 0.15s; }
 .preloader-logo-right { animation-delay: 0.3s; }
 
-/* --- Ключевые кадры Анимации Элементов (Лого + Растворение) --- */
-@keyframes finalElementAnimation {
-  0% { opacity: 0; filter: blur(10px); transform: scale(0.5); }
-  60% { opacity: 1; filter: blur(0px); transform: scale(1.5); }
-  80% { opacity: 1; filter: blur(0px); transform: scale(1.6); }
-  100% { opacity: 0; filter: blur(8px); transform: scale(1); }
-}
-/* Анимация для разделителя (появление/исчезновение) */
+
+/* --- Ключевые кадры Анимации ЛОГОТИПОВ --- */
+/* --- Ключевые кадры Анимации ЛОГОТИПОВ --- */
+@keyframes finalLogoAnimation {
+    0% {
+      opacity: 0;
+      filter: blur(10px);
+      transform: scale(0.5); /* Начальный маленький размер */
+    }
+    60% { /* Фокус + Увеличение */
+      opacity: 1;
+      filter: blur(0px);
+      transform: scale(1.1); /* <<< Уменьшено с 1.5 */
+    }
+    80% { /* Пик увеличения */
+      opacity: 1;
+      filter: blur(0px);
+      transform: scale(1.2); /* <<< Уменьшено с 1.6 */
+    }
+    100% { /* Растворение */
+      opacity: 0;
+      filter: blur(8px);
+      transform: scale(0.9); /* <<< Можно чуть уменьшить при исчезновении */
+    }
+  }
+/* Анимация для разделителя */
 @keyframes fadePreloaderElement {
-    0%, 100% { opacity: 0; transform: scale(0.8); }
-    15%, 85% { opacity: 1; transform: scale(1); }
+    /* 0% не нужен */
+    15% { /* Появление */
+        opacity: 1;
+        transform: scale(1);
+    }
+    85% { /* Начало исчезновения */
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% { /* Полное исчезновение */
+       opacity: 0;
+       transform: scale(0.8);
+   }
 }
 /* --- Конец стилей для Прелоадера --- */
 
@@ -184,37 +222,20 @@ h1, h2, h3, h4, h5, h6 {
 
 .header-container {
     display: flex;
-    justify-content: space-between; /* Разносит элементы по краям */
+    justify-content: space-between; /* Разносит логотипы по краям */
     align-items: center;
 }
 
 .logo {
-    height: 60px;
+    height: 60px; /* Ваш размер */
     transition: transform var(--transition-speed) ease;
-    display: block;
+    display: block; /* Полезно для img в flex */
 }
 .logo-link:hover .logo {
     transform: scale(1.05);
 }
-/* Стили для правого лого, если есть */
 .header-logo-right {
     height: 80px;
-}
-
-/* Позиционирование навигации на странице деталей */
-.details-nav {
-    margin-left: auto; /* Прижимает ссылку "назад" вправо */
-}
-.back-link {
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
-    font-weight: 500;
-    transition: color var(--transition-speed);
-    display: inline-block;
-    margin-bottom: 0;
-}
-.back-link:hover {
-    color: var(--color-primary);
 }
 
 
@@ -238,7 +259,7 @@ h1, h2, h3, h4, h5, h6 {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('./img/123.png');
+    background-image: url('./img/123.png'); /* Исправлен путь */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -276,10 +297,6 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-}
-.hero-symbol-image {
-     max-width: 150px;
-     margin: 30px auto 40px;
 }
 
 .scroll-down-link {
@@ -355,14 +372,18 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
     margin-bottom: 60px;
 }
-/* Убираем стиль для h2.section-title, т.к. он теперь .section-subtitle */
-/* .section-title { ... } */
-.section-header .section-subtitle span { /* Стиль для span внутри подзаголовка секции */
-    /* color: var(--color-primary); */ /* Можно убрать, если цвет наследуется */
-    display: inline; /* Отображаем как часть текста */
-    /* font-size: 1em; */ /* Размер как у родителя */
-    /* font-weight: 700; */ /* Можно убрать, если наследуется */
-    /* margin-bottom: 0; */
+
+.section-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+.section-title span {
+    color: var(--color-primary);
+    display: block;
+    font-size: 0.7em;
+    font-weight: 700;
+    margin-bottom: 5px;
 }
 
 .section-description {
@@ -370,7 +391,6 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-text-muted);
     max-width: 900px;
     margin: 0 auto;
-    margin-top: 15px; /* Добавляем отступ от подзаголовка */
 }
 
 /* --- Стили для Поиска --- */
@@ -397,7 +417,7 @@ h1, h2, h3, h4, h5, h6 {
 .search-input:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(232, 122, 48, 0.25);
+    box-shadow: 0 0 0 3px rgba(232, 122, 48, 0.25); /* Используем --color-primary */
 }
 
 .search-input::-webkit-search-cancel-button,
@@ -416,11 +436,17 @@ h1, h2, h3, h4, h5, h6 {
     stroke: var(--color-primary);
     pointer-events: none;
 }
+
 @media (min-width: 540px) {
      .search-icon {
-         right: calc(50% - 500px / 2 + 45px - 20px - 5px);
+         /* Позиционируем относительно правого края КОНТЕЙНЕРА .search-wrapper */
+         /* (Половина контейнера - половина инпута + правый паддинг инпута - половина иконки) */
+         /* Учитывая, что wrapper центрирован и имеет padding, проще оставить right: 35px */
+         /* Если инпут всегда max-width: 500px, можно точнее: */
+         right: calc(50% - 250px + 20px); /* Центр wrapper - половина инпута + отступ от края инпута (20px ~ 45px padding - 20px иконка - 5px буфер) */
      }
 }
+
 
 .visually-hidden {
   position: absolute;
@@ -470,7 +496,7 @@ h1, h2, h3, h4, h5, h6 {
 
 
 .card-image-container {
-    height: 500px; /* Ваша увеличенная высота */
+    height: 500px; /* Увеличено */
     position: relative;
     overflow: hidden;
     background-color: #e0e0e0;
@@ -585,6 +611,22 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: 40px;
 }
 
+.details-nav { /* Стили для навигации в шапке */
+    margin-left: auto; /* Прижимает вправо */
+}
+
+.back-link {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    transition: color var(--transition-speed);
+    display: inline-block;
+    margin-bottom: 0;
+}
+.back-link:hover {
+    color: var(--color-primary);
+}
+
 .details-header {
     text-align: center;
     margin-bottom: 50px;
@@ -593,7 +635,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: clamp(2.2rem, 5vw, 3.5rem);
     margin-bottom: 10px;
 }
-.details-relationship {
+.details-relationship { /* Подзаголовок "Прадедушка..." */
     font-size: clamp(1rem, 2vw, 1.2rem);
     color: var(--color-text-muted);
     font-weight: 400;
@@ -608,40 +650,15 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 80px;
 }
 
-@media (min-width: 768px) {
-    .details-content {
-        grid-template-columns: 1fr 1.2fr;
-         gap: 60px;
-    }
-    .details-image-wrapper {
-        position: sticky;
-        top: 100px;
-    }
-}
-
 .details-image {
     width: 100%;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-lg);
 }
 
-.details-text-wrapper { /* Контейнер для правого блока */
-}
-
+/* Блоки "Звание", "Годы жизни" */
 .details-info-block {
     margin-bottom: 25px;
-}
-/* Убираем стиль H2 для блоков Звание/Годы */
-.details-info-block h2 {
-     font-size: 1.1rem; /* Меньше чем H2 разделов */
-     font-weight: 700;
-     color: var(--color-text); /* Основной цвет текста */
-     margin-bottom: 5px;
-     padding-bottom: 0; /* Убираем отступ снизу */
-     border-bottom: none; /* Убираем границу снизу */
-}
-.details-info-block h2::after {
-     display: none; /* Убираем подчеркивание */
 }
 .details-info-block p {
     font-size: 1rem;
@@ -649,38 +666,37 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0;
 }
 
-/* Заголовки секций (Путь героя, Награды...) */
-.details-section-title { /* Применяем этот стиль к нужным H2 */
-    font-size: 1.8rem; /* Как подзаголовок на главной */
+/* Заголовки секций (h2) на странице деталей */
+.details-text-wrapper h2 {
+    font-size: 1.8rem;
     margin-bottom: 20px;
     margin-top: 40px;
     color: var(--color-primary);
     position: relative;
     padding-bottom: 10px;
 }
-.details-section-title::after { /* Короткая линия под заголовками секций */
-     content: '';
+.details-text-wrapper h2::after { /* Короткая оранжевая линия под h2 */
+    content: '';
     position: absolute;
     bottom: 0;
     left: 0;
     width: 40px;
     height: 3px;
     background-color: var(--color-primary);
-    opacity: 0.8; /* Чуть ярче */
+    opacity: 0.6;
     display: block;
 }
-.details-text-wrapper h2:first-of-type.details-section-title { /* У первого H2 (если это section-title) убираем верхний отступ */
+.details-text-wrapper h2:first-of-type {
     margin-top: 0;
 }
 
-
-.details-text-wrapper p { /* Стили для обычного текста */
+.details-text-wrapper p { /* Обычный текст */
     margin-bottom: 20px;
     font-size: 1.05rem;
     color: #495057;
 }
 
-/* Список наград со звездочками */
+/* Список наград */
 .details-awards-list {
     list-style: none;
     padding-left: 0;
@@ -689,22 +705,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 .details-awards-list li {
     position: relative;
-    padding-left: 1.5em; /* Отступ для звезды */
+    padding-left: 1.5em;
     margin-bottom: 10px;
     font-size: 1.05rem;
     color: #495057;
-    line-height: 1.5; /* Для выравнивания */
+    line-height: 1.5;
 }
-.details-awards-list li::before {
+.details-awards-list li::before { /* Звездочка перед наградой */
     content: '★';
     position: absolute;
     left: 0;
-    top: 0.1em; /* Подбираем вертикальное положение */
+    top: 0.1em; /* Подбираем позицию */
     color: var(--color-primary);
-    font-size: 1.1em; /* Размер звезды */
+    font-size: 1.1em;
     line-height: 1;
 }
-
 
 .details-quote {
     border-left: 4px solid var(--color-primary);
@@ -715,7 +730,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-text-muted);
 }
 
-/* Скрываем нижнюю кнопку "Назад" по умолчанию */
+/* Нижняя кнопка "Назад" (скрыта по умолчанию) */
 .details-back-link-mobile {
     display: none;
 }
@@ -795,85 +810,52 @@ h1, h2, h3, h4, h5, h6 {
 .animate-on-load.delay-3 { animation-delay: 0.6s; }
 .animate-on-load.delay-4 { animation-delay: 0.8s; }
 
-
-/* Кейфреймы для анимаций при загрузке */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 /* --- Адаптивность --- */
 @media (max-width: 768px) {
-    /* Не-sticky шапка на мобильных */
+    /* Шапка */
     .site-header {
-        position: static;
+        position: static; /* Шапка не прилипает */
     }
-
-    /* Шапка на мобильных */
     .header-container {
         flex-direction: column;
         gap: 15px;
     }
-    /* Линия под первым лого в шапке на мобильных */
-    .header-container > .logo-link:first-child {
+    .header-container > .logo-link:first-child { /* Линия под первым лого */
         padding-bottom: 15px;
-        border-bottom: 2px solid #F34604; /* Было 4px, затем 2px - оставляем 2px */
+        border-bottom: 2px solid #F34604; /* Толщина линии */
         width: auto;
         display: inline-block;
     }
-    /* Позиционирование ссылки Назад на странице деталей (если шапка стандартная) */
-    .details-nav { /* Это правило теперь не нужно, если шапка меняется */
-        /* margin-left: 0; */
-        /* margin-top: 10px; */
+     .details-nav { /* Центрируем ссылку назад */
+         margin-left: 0;
+         text-align: center;
+         width: 100%;
+         margin-top: 10px; /* Отступ сверху, если нужно */
     }
 
-    /* Прелоадер на мобильных */
-    .preloader-content {
-        flex-direction: column;
-        gap: 15px;
-    }
-    .preloader-separator {
-        width: 150px !important;   /* Горизонтальная линия */
-        height: 2px !important;    /* Толщина */
-    }
+    /* Секция Героев */
+     .section-title span { display: inline; font-size: 1em;}
 
-    /* Секции */
-    .section-header .section-subtitle span {
-         display: inline;
-         font-size: 1em;
-    }
-
-    /* Поиск на мобильных */
+     /* Поиск */
     .search-icon {
         right: 30px;
     }
-    /* Убираем корректировку позиции иконки для десктопа */
-    @media (min-width: 540px) {
-         .search-icon {
-             right: 30px; /* Используем то же значение, что и для мобильных */
-         }
+    @media (min-width: 540px) { /* Отменяем сложный расчет для мобильных */
+         .search-icon { right: 30px; }
     }
 
 
-    /* Страница деталей на мобильных */
-     .details-image-wrapper { /* Отменяем прилипание картинки */
+    /* Страница Деталей */
+    .details-content {
+        grid-template-columns: 1fr; /* Всегда одна колонка */
+    }
+     .details-image-wrapper { /* Картинка не прилипает */
         position: static;
-        top: auto;
     }
-    /* Показываем нижнюю кнопку "Назад" */
-    .details-back-link-mobile {
+    .details-back-link-mobile { /* Показываем нижнюю кнопку */
         display: block;
         text-align: center;
         padding: 25px 0;
@@ -881,7 +863,7 @@ h1, h2, h3, h4, h5, h6 {
         border-top: 1px solid var(--color-border);
     }
 
-    /* Футер на мобильных */
+    /* Подвал */
     .footer-container {
         flex-direction: column;
         text-align: center;
@@ -890,5 +872,15 @@ h1, h2, h3, h4, h5, h6 {
     .footer-logo { flex-direction: column; }
     .footer-credits { text-align: center; }
 
-}
-/* --- Конец Адаптивности --- */
+    /* Прелоадер */
+    .preloader-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .preloader-separator {
+        width: 150px !important;
+        height: 2px !important;
+        margin: 0;
+    }
+
+} /* Конец @media (max-width: 768px) */
